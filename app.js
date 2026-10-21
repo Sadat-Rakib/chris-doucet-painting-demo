@@ -1,23 +1,170 @@
-const menu=document.querySelector('.menu-button');
-const nav=document.querySelector('#navigation');
-const closeMenu=()=>{menu.setAttribute('aria-expanded','false');nav.classList.remove('open');menu.setAttribute('aria-label','Open navigation');};
-menu.addEventListener('click',()=>{const open=menu.getAttribute('aria-expanded')!=='true';menu.setAttribute('aria-expanded',String(open));menu.setAttribute('aria-label',open?'Close navigation':'Open navigation');nav.classList.toggle('open',open);});
-nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu();});
-document.addEventListener('click',e=>{if(!e.target.closest('.header'))closeMenu();});
-const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-document.querySelectorAll('[data-words]').forEach(el=>{let index=0;const walk=node=>{[...node.childNodes].forEach(n=>{if(n.nodeType===3){const frag=document.createDocumentFragment();n.textContent.split(/(\s+)/).forEach(word=>{if(!word.trim()){frag.append(word);return;}const span=document.createElement('span');span.className='word';span.style.setProperty('--delay',`${.14+index++*.075}s`);span.textContent=word;frag.append(span);});n.replaceWith(frag);}else walk(n);});};walk(el);});
-if(!reduced&&'IntersectionObserver'in window){const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('revealed');obs.unobserve(e.target);}}),{threshold:.12});document.querySelectorAll('[data-reveal]').forEach(el=>{el.classList.add('will-reveal');obs.observe(el);});}
-document.querySelectorAll('[data-service]').forEach(a=>a.addEventListener('click',()=>{const select=document.querySelector('select[name=service]');const word=a.dataset.service.split(' ')[0].toLowerCase();const opt=[...select.options].find(o=>o.text.toLowerCase().includes(word));if(opt)select.value=opt.value;}));
-const form=document.querySelector('.inquiry-form');
-form.addEventListener('submit',e=>{e.preventDefault();const data=new FormData(form);const msg=`Hi, I’m ${data.get('name')}. I’m in ${data.get('area')} and would like to ask about ${data.get('service').toLowerCase()}.\n\n${data.get('details')}\n\nCould we discuss an estimate and availability?`;form.querySelector('[name=prepared-message]').value=msg;form.querySelector('.prepared').hidden=false;form.querySelector('[name=prepared-message]').focus();});
-form.querySelector('.copy-message').addEventListener('click',async()=>{const area=form.querySelector('[name=prepared-message]');const status=form.querySelector('.copy-status');try{await navigator.clipboard.writeText(area.value);status.textContent='Message copied. Open Facebook or call to continue.';}catch{area.focus();area.select();status.textContent='Select and copy the message above to continue.';}});
-const seasons={spring:['A fresh start outside.','Window cleaning, gutter clearing and lawn care to welcome the growing season.'],summer:['More time to enjoy the yard.','Ask about recurring lawn care and window cleaning through the long summer days.'],autumn:['Put the property to bed.','Plan gutter clearing and a final yard tidy-up, then talk through your winter needs.'],winter:['Make room for winter.','Ask about snow removal, recurring winter plans, service areas and availability.']};
-const tabs=[...document.querySelectorAll('[data-season]')];
-tabs.forEach((tab,i)=>{const activate=()=>{tabs.forEach(t=>{t.setAttribute('aria-selected',String(t===tab));t.tabIndex=t===tab?0:-1;});const panel=document.querySelector('#season-content');panel.setAttribute('aria-labelledby',tab.id);panel.querySelector('h3').textContent=seasons[tab.dataset.season][0];panel.querySelector('p').textContent=seasons[tab.dataset.season][1];};tab.addEventListener('click',activate);tab.addEventListener('keydown',e=>{if(['ArrowRight','ArrowLeft','Home','End'].includes(e.key)){e.preventDefault();const next=e.key==='Home'?0:e.key==='End'?tabs.length-1:(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;tabs[next].focus();tabs[next].click();}});});
-const range=document.querySelector('#compare-range');range?.addEventListener('input',()=>document.querySelector('.comparison').style.setProperty('--position',range.value+'%'));
-const lightbox=document.querySelector('.lightbox');let opener;
-document.querySelectorAll('.gallery-open').forEach(b=>b.addEventListener('click',()=>{opener=b;lightbox.querySelector('img').src=b.dataset.image;lightbox.querySelector('img').alt=b.dataset.caption;lightbox.querySelector('p').textContent=b.dataset.caption;lightbox.showModal();}));
-lightbox.querySelector('.lightbox-close').addEventListener('click',()=>lightbox.close());
-lightbox.addEventListener('click',e=>{if(e.target===lightbox)lightbox.close();});
-lightbox.addEventListener('close',()=>opener?.focus());
+const menu = document.querySelector(".menu-button");
+const nav = document.querySelector("#navigation");
+const closeMenu = () => {
+  menu.setAttribute("aria-expanded", "false");
+  nav.classList.remove("open");
+  menu.setAttribute("aria-label", "Open navigation");
+};
+menu.addEventListener("click", () => {
+  const open = menu.getAttribute("aria-expanded") !== "true";
+  menu.setAttribute("aria-expanded", String(open));
+  menu.setAttribute(
+    "aria-label",
+    open ? "Close navigation" : "Open navigation",
+  );
+  nav.classList.toggle("open", open);
+  if (open) nav.querySelector("a").focus();
+});
+nav
+  .querySelectorAll("a")
+  .forEach((a) => a.addEventListener("click", closeMenu));
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && menu.getAttribute("aria-expanded") === "true") {
+    closeMenu();
+    menu.focus();
+  }
+});
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".header")) closeMenu();
+});
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+document.querySelectorAll("[data-words]").forEach((el) => {
+  let index = 0;
+  const walk = (node) => {
+    [...node.childNodes].forEach((n) => {
+      if (n.nodeType === 3) {
+        const frag = document.createDocumentFragment();
+        n.textContent.split(/(\s+)/).forEach((word) => {
+          if (!word.trim()) {
+            frag.append(word);
+            return;
+          }
+          const span = document.createElement("span");
+          span.className = "word";
+          span.style.setProperty("--delay", `${0.14 + index++ * 0.075}s`);
+          span.textContent = word;
+          frag.append(span);
+        });
+        n.replaceWith(frag);
+      } else walk(n);
+    });
+  };
+  walk(el);
+});
+if (!reduced && "IntersectionObserver" in window) {
+  const obs = new IntersectionObserver(
+    (entries) =>
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.classList.add("revealed");
+          obs.unobserve(e.target);
+        }
+      }),
+    { threshold: 0.12 },
+  );
+  document.querySelectorAll("[data-reveal]").forEach((el) => {
+    el.classList.add("will-reveal");
+    obs.observe(el);
+  });
+}
+document.querySelectorAll("[data-service]").forEach((a) =>
+  a.addEventListener("click", () => {
+    const select = document.querySelector("select[name=service]");
+    const word = a.dataset.service.split(" ")[0].toLowerCase();
+    const opt = [...select.options].find((o) =>
+      o.text.toLowerCase().includes(word),
+    );
+    if (opt) select.value = opt.value;
+  }),
+);
+const form = document.querySelector(".inquiry-form");
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const data = new FormData(form);
+  const msg = `Hi, I’m ${data.get("name")}. I’m in ${data.get("area")} and would like to ask about ${data.get("service").toLowerCase()}.\n\n${data.get("details")}\n\nCould we discuss an estimate and availability?`;
+  form.querySelector("[name=prepared-message]").value = msg;
+  form.querySelector(".prepared").hidden = false;
+  form.querySelector("[name=prepared-message]").focus();
+});
+form.querySelector(".copy-message").addEventListener("click", async () => {
+  const area = form.querySelector("[name=prepared-message]");
+  const status = form.querySelector(".copy-status");
+  try {
+    await navigator.clipboard.writeText(area.value);
+    status.textContent = "Message copied. Open Facebook or call to continue.";
+  } catch {
+    area.focus();
+    area.select();
+    status.textContent = "Select and copy the message above to continue.";
+  }
+});
+const seasons = {
+  spring: [
+    "A fresh start outside.",
+    "Window cleaning, gutter clearing and lawn care to welcome the growing season.",
+  ],
+  summer: [
+    "More time to enjoy the yard.",
+    "Ask about recurring lawn care and window cleaning through the long summer days.",
+  ],
+  autumn: [
+    "Put the property to bed.",
+    "Plan gutter clearing and a final yard tidy-up, then talk through your winter needs.",
+  ],
+  winter: [
+    "Make room for winter.",
+    "Ask about snow removal, recurring winter plans, service areas and availability.",
+  ],
+};
+const tabs = [...document.querySelectorAll("[data-season]")];
+tabs.forEach((tab, i) => {
+  const activate = () => {
+    tabs.forEach((t) => {
+      t.setAttribute("aria-selected", String(t === tab));
+      t.tabIndex = t === tab ? 0 : -1;
+    });
+    const panel = document.querySelector("#season-content");
+    panel.setAttribute("aria-labelledby", tab.id);
+    panel.querySelector("h3").textContent = seasons[tab.dataset.season][0];
+    panel.querySelector("p").textContent = seasons[tab.dataset.season][1];
+  };
+  tab.addEventListener("click", activate);
+  tab.addEventListener("keydown", (e) => {
+    if (["ArrowRight", "ArrowLeft", "Home", "End"].includes(e.key)) {
+      e.preventDefault();
+      const next =
+        e.key === "Home"
+          ? 0
+          : e.key === "End"
+            ? tabs.length - 1
+            : (i + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) %
+              tabs.length;
+      tabs[next].focus();
+      tabs[next].click();
+    }
+  });
+});
+const range = document.querySelector("#compare-range");
+range?.addEventListener("input", () =>
+  document
+    .querySelector(".comparison")
+    .style.setProperty("--position", range.value + "%"),
+);
+const lightbox = document.querySelector(".lightbox");
+let opener;
+document.querySelectorAll(".gallery-open").forEach((b) =>
+  b.addEventListener("click", () => {
+    opener = b;
+    lightbox.querySelector("img").src = b.dataset.image;
+    lightbox.querySelector("img").alt = b.dataset.caption;
+    lightbox.querySelector("p").textContent = b.dataset.caption;
+    lightbox.showModal();
+  }),
+);
+lightbox
+  .querySelector(".lightbox-close")
+  .addEventListener("click", () => lightbox.close());
+lightbox.addEventListener("click", (e) => {
+  if (e.target === lightbox) lightbox.close();
+});
+lightbox.addEventListener("close", () => opener?.focus());
